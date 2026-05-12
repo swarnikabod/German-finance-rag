@@ -1,0 +1,41 @@
+model,question,ground_truth,score,latency_s
+Baseline (all-MiniLM-L6-v2),What was the ECB deposit facility rate in December 2024?,3.00%,0.0,53.997378
+Baseline (all-MiniLM-L6-v2),By how many basis points did ECB cut rates in 2024?,100 basis points,0.0,21.460011
+Baseline (all-MiniLM-L6-v2),What was headline inflation in the euro area in December 2024?,2.4%,0.0,21.383199
+Baseline (all-MiniLM-L6-v2),What was core inflation at its peak in 2023?,7.6% in March 2023,0.5,13.868277
+Baseline (all-MiniLM-L6-v2),What is the ECB inflation target?,2%,0.0,17.098308
+Baseline (all-MiniLM-L6-v2),What percentage of ECB total assets were monetary policy securities?,59%,0.0,43.090179
+Baseline (all-MiniLM-L6-v2),What was the total value of euro banknotes in circulation end of 2024?,1588.3 billion euros,0.0,34.168378
+Baseline (all-MiniLM-L6-v2),What share of euro banknotes is allocated to the ECB?,8%,0.0,28.231416
+Baseline (all-MiniLM-L6-v2),What is the PEPP program?,Pandemic emergency purchase programme,0.75,63.164121
+Baseline (all-MiniLM-L6-v2),What is the TPI?,Transmission protection instrument approved July 2022,0.0,39.73611
+Baseline (all-MiniLM-L6-v2),How many significant institutions are directly supervised by ECB?,22,0.0,43.215762
+Baseline (all-MiniLM-L6-v2),What is FINREP?,Financial reporting framework for credit institutions,0.0,42.239611
+Baseline (all-MiniLM-L6-v2),What is the SMP program?,Securities Markets Programme,0.0,69.797271
+Baseline (all-MiniLM-L6-v2),What is the ABSPP?,Asset-backed securities purchase programme,0.0,24.743296
+Baseline (all-MiniLM-L6-v2),What did ECB say about housing investment in 2024?,fell 4.0 percent largest decline since 2009,0.0,14.299577
+Baseline (all-MiniLM-L6-v2),What are the three main financial stability risks in November 2025?,asset valuations sovereign debt credit risk tariffs,0.0,41.685505
+Baseline (all-MiniLM-L6-v2),What did BaFin focus on in AML audits in 2023?,risk analysis due diligence IT monitoring,0.0,53.906783
+Baseline (all-MiniLM-L6-v2),What is MaRisk?,Minimum Requirements for Risk Management for Banks,0.0,28.017641
+Baseline (all-MiniLM-L6-v2),What is global trade growth in 2024?,4.4%,0.0,19.304045
+Baseline (all-MiniLM-L6-v2),What is the ECB APP?,Asset purchase programme,1.0,40.178111
+Improved (Jina-DE v2),What was the ECB deposit facility rate in December 2024?,3.00%,0.0,17.179614
+Improved (Jina-DE v2),By how many basis points did ECB cut rates in 2024?,100 basis points,0.0,23.029013
+Improved (Jina-DE v2),What was headline inflation in the euro area in December 2024?,2.4%,0.0,19.611227
+Improved (Jina-DE v2),What was core inflation at its peak in 2023?,7.6% in March 2023,0.5,14.930094
+Improved (Jina-DE v2),What is the ECB inflation target?,2%,0.0,17.484315
+Improved (Jina-DE v2),What percentage of ECB total assets were monetary policy securities?,59%,0.0,53.390672
+Improved (Jina-DE v2),What was the total value of euro banknotes in circulation end of 2024?,1588.3 billion euros,0.0,34.258558
+Improved (Jina-DE v2),What share of euro banknotes is allocated to the ECB?,8%,0.0,45.785689
+Improved (Jina-DE v2),What is the PEPP program?,Pandemic emergency purchase programme,0.5,34.647791
+Improved (Jina-DE v2),What is the TPI?,Transmission protection instrument approved July 2022,0.0,39.175946
+Improved (Jina-DE v2),How many significant institutions are directly supervised by ECB?,22,0.0,48.58606
+Improved (Jina-DE v2),What is FINREP?,Financial reporting framework for credit institutions,0.0,45.875706
+Improved (Jina-DE v2),What is the SMP program?,Securities Markets Programme,0.333,38.344294
+Improved (Jina-DE v2),What is the ABSPP?,Asset-backed securities purchase programme,0.0,27.623563
+Improved (Jina-DE v2),What did ECB say about housing investment in 2024?,fell 4.0 percent largest decline since 2009,0.0,22.791066
+Improved (Jina-DE v2),What are the three main financial stability risks in November 2025?,asset valuations sovereign debt credit risk tariffs,0.0,94.896528
+Improved (Jina-DE v2),What did BaFin focus on in AML audits in 2023?,risk analysis due diligence IT monitoring,0.0,45.01638
+Improved (Jina-DE v2),What is MaRisk?,Minimum Requirements for Risk Management for Banks,0.5,31.316405
+Improved (Jina-DE v2),What is global trade growth in 2024?,4.4%,0.0,21.28951
+Improved (Jina-DE v2),What is the ECB APP?,Asset purchase programme,1.0,36.043459
