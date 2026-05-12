@@ -216,7 +216,7 @@ with st.sidebar:
     st.markdown('<div class="sidebar-title">System</div>', unsafe_allow_html=True)
     st.markdown(f"""
     <div class="sidebar-section">
-        <div class="sidebar-item">Embedding<span>Jina-DE v2</span></div>
+       <div class="sidebar-item">Embedding<span>multilingual-e5</span></div>
         <div class="sidebar-item">LLM<span>{config.ollama_model}</span></div>
         <div class="sidebar-item">Vector DB<span>ChromaDB</span></div>
         <div class="sidebar-item">Docs indexed<span>{collection_size}</span></div>
@@ -265,11 +265,11 @@ st.markdown(f"""
         <div class="stat-label">Pages Indexed</div>
     </div>
     <div class="stat-card">
-        <div class="stat-value">2,619</div>
+        <div class="stat-value">22,655</div>
         <div class="stat-label">Chunks</div>
     </div>
     <div class="stat-card">
-        <div class="stat-value">3</div>
+        <div class="stat-value">9</div>
         <div class="stat-label">Source Documents</div>
     </div>
     <div class="stat-card">
@@ -352,7 +352,7 @@ if user_input:
     )
     augmented_query = f"{user_input}\n\n[{lang_instruction}]"
 
-    with st.spinner("🔍 Searching 2,619 document chunks..."):
+    with st.spinner("🔍 Searching 22,655 document chunks..."):
         try:
             result = chain_with_sources(augmented_query, config)
             st.session_state.messages.append({
