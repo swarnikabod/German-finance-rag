@@ -7,354 +7,474 @@ from src.config import Config
 from src.rag.chain import chain_with_sources
 from src.vectorstore.store import get_collection_size
 
-# ── Page config ──────────────────────────────────────────────────────────────
 st.set_page_config(
-    page_title="ECB · BaFin RAG Analyst",
+    page_title="RegDoc Analyst · ECB & BaFin RAG",
     page_icon="🏦",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
-# ── CSS ──────────────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Inter:wght@300;400;500;600&display=swap');
 
 html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
 
-.main { background: #0a0f1e; }
-.block-container { padding: 2rem 3rem; max-width: 1100px; }
+/* ── MAIN BG ── */
+.main { background: #fafaf8; }
+.block-container { padding: 2rem 2.8rem; max-width: 1100px; }
 
-/* Hero */
-.hero {
-    background: linear-gradient(135deg, #0d1b2a 0%, #1a2744 50%, #0d1b2a 100%);
-    border: 1px solid #1e3a5f;
-    border-radius: 16px;
-    padding: 2.5rem 3rem;
-    margin-bottom: 2rem;
-    position: relative;
-    overflow: hidden;
+/* ── SIDEBAR ── */
+section[data-testid="stSidebar"] {
+    background: #0f0f0f !important;
+    border-right: 1px solid #1e1e1e !important;
+    padding: 0 !important;
 }
-.hero::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    right: -10%;
-    width: 400px;
-    height: 400px;
-    background: radial-gradient(circle, rgba(59,130,246,0.08) 0%, transparent 70%);
-    border-radius: 50%;
+
+.sb-inner { padding: 1.8rem 1.4rem; }
+
+.sb-brand {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #f5e6c8;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    margin-bottom: 0.25rem;
+}
+.sb-tagline {
+    font-size: 0.7rem;
+    color: #555;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 1.6rem;
+    font-weight: 500;
+}
+.sb-divider {
+    border: none;
+    border-top: 1px solid #1e1e1e;
+    margin: 1.2rem 0;
+}
+.sb-section {
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #c9a84c;
+    margin: 1.4rem 0 0.7rem 0;
+}
+.sb-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.38rem 0;
+    border-bottom: 1px solid #161616;
+    font-size: 0.76rem;
+}
+.sb-row-key { color: #666; font-weight: 400; }
+.sb-row-val { color: #e8e8e8; font-weight: 500; font-size: 0.74rem; }
+.sb-doc {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.32rem 0;
+    border-bottom: 1px solid #141414;
+    font-size: 0.72rem;
+    color: #555;
+}
+.sb-doc-name { color: #888; }
+.sb-doc-check { color: #c9a84c; font-weight: 600; }
+.sb-doc-soon { color: #444; font-style: italic; }
+
+.sb-author {
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid #1e1e1e;
+    font-size: 0.7rem;
+    color: #444;
+    line-height: 1.8;
+}
+.sb-author strong { color: #c9a84c; font-size: 0.8rem; display: block; margin-bottom: 0.3rem; }
+.sb-author a { color: #8a7a5a; text-decoration: none; }
+.sb-author a:hover { color: #c9a84c; }
+
+/* ── HERO ── */
+.hero {
+    background: #ffffff;
+    border: 1px solid #ede9e0;
+    border-radius: 14px;
+    padding: 2.2rem 2.8rem;
+    margin-bottom: 1.2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
 }
 .hero-badge {
-    display: inline-block;
-    background: rgba(59,130,246,0.15);
-    border: 1px solid rgba(59,130,246,0.3);
-    color: #60a5fa;
-    font-size: 0.7rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: #fdf8ee;
+    border: 1px solid #e8d9b0;
+    color: #9a7a3a;
+    font-size: 0.63rem;
     font-weight: 600;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    padding: 0.3rem 0.8rem;
+    padding: 0.28rem 0.75rem;
     border-radius: 20px;
     margin-bottom: 1rem;
 }
 .hero h1 {
+    font-family: 'Playfair Display', serif;
     font-size: 2.2rem;
-    font-weight: 700;
-    color: #f0f6ff;
-    margin: 0 0 0.5rem 0;
-    line-height: 1.2;
+    color: #0f0f0f;
+    margin: 0 0 0.6rem 0;
+    line-height: 1.15;
+    font-weight: 600;
+    letter-spacing: -0.02em;
 }
-.hero p {
-    color: #8ba3c7;
-    font-size: 0.95rem;
-    margin: 0;
-    max-width: 600px;
+.hero-desc {
+    font-size: 0.9rem;
+    color: #777;
+    line-height: 1.65;
+    max-width: 520px;
+    font-weight: 300;
 }
-
-/* Stats row */
-.stats-row {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1rem;
-    margin-bottom: 2rem;
+.hero-right {
+    text-align: right;
+    min-width: 120px;
+    padding-left: 2rem;
 }
-.stat-card {
-    background: #0d1b2a;
-    border: 1px solid #1e3a5f;
-    border-radius: 10px;
-    padding: 1rem 1.2rem;
-    text-align: center;
-}
-.stat-value {
-    font-size: 1.6rem;
-    font-weight: 700;
-    color: #60a5fa;
+.hero-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 3.2rem;
+    color: #c9a84c;
     line-height: 1;
+    font-weight: 400;
 }
-.stat-label {
-    font-size: 0.7rem;
-    color: #4a6fa5;
+.hero-num-label {
+    font-size: 0.68rem;
+    color: #aaa;
     text-transform: uppercase;
     letter-spacing: 0.08em;
     margin-top: 0.3rem;
+    line-height: 1.5;
 }
 
-/* Quick questions */
-.section-label {
-    font-size: 0.7rem;
+/* ── STATS ── */
+.stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1.4rem;
+}
+.stat-card {
+    background: #ffffff;
+    border: 1px solid #ede9e0;
+    border-radius: 10px;
+    padding: 1.1rem 1.3rem;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    position: relative;
+    overflow: hidden;
+}
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #c9a84c, #e8cc80);
+}
+.stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.9rem;
+    color: #0f0f0f;
+    line-height: 1;
+    font-weight: 400;
+}
+.stat-lbl {
+    font-size: 0.62rem;
     font-weight: 600;
-    color: #4a6fa5;
+    color: #bbb;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.09em;
+    margin-top: 0.35rem;
+}
+
+/* ── QUICK QUESTIONS ── */
+.qs-header {
+    font-size: 0.62rem;
+    font-weight: 700;
+    color: #c9a84c;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
     margin-bottom: 0.7rem;
 }
 
-/* Chat messages */
+/* ── CHAT ── */
+.msg-user-wrap { margin: 1rem 0 0.5rem 0; }
+.msg-user-lbl {
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #aaa;
+    margin-bottom: 0.4rem;
+    padding-left: 0.2rem;
+}
 .msg-user {
-    background: linear-gradient(135deg, #1e3a5f, #1a2f50);
-    border: 1px solid #2a4a7f;
-    border-radius: 12px 12px 4px 12px;
-    padding: 1rem 1.2rem;
-    margin: 1rem 0 0.5rem 3rem;
-    color: #e2eeff;
-    font-size: 0.92rem;
+    background: #0f0f0f;
+    color: #f0ead8;
+    border-radius: 10px 10px 3px 10px;
+    padding: 1rem 1.3rem;
+    margin-left: 5rem;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    font-weight: 300;
+}
+.msg-bot-wrap { margin: 0.5rem 0 1rem 0; }
+.msg-bot-lbl {
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #c9a84c;
+    margin-bottom: 0.4rem;
+    padding-left: 0.2rem;
 }
 .msg-bot {
-    background: #0d1b2a;
-    border: 1px solid #1e3a5f;
-    border-radius: 12px 12px 12px 4px;
-    padding: 1.2rem 1.4rem;
-    margin: 0.5rem 3rem 1rem 0;
-    color: #c8daf5;
-    font-size: 0.92rem;
-    line-height: 1.7;
+    background: #ffffff;
+    border: 1px solid #ede9e0;
+    border-left: 3px solid #c9a84c;
+    border-radius: 3px 10px 10px 10px;
+    padding: 1.2rem 1.5rem;
+    margin-right: 5rem;
+    font-size: 0.88rem;
+    line-height: 1.75;
+    color: #2a2a2a;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
 }
-.msg-label {
-    font-size: 0.65rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    margin-bottom: 0.5rem;
+.citations {
+    margin-top: 1rem;
+    padding-top: 0.8rem;
+    border-top: 1px solid #f0ece4;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem;
 }
-.msg-label.user { color: #60a5fa; }
-.msg-label.bot { color: #34d399; }
-
-/* Source chips */
-.source-chip {
-    display: inline-block;
-    background: rgba(59,130,246,0.1);
-    border: 1px solid rgba(59,130,246,0.25);
-    color: #60a5fa;
-    font-size: 0.68rem;
-    font-weight: 500;
-    padding: 0.2rem 0.6rem;
-    border-radius: 12px;
-    margin: 0.2rem 0.2rem 0.2rem 0;
-    font-family: 'Courier New', monospace;
-}
-
-/* Sidebar */
-section[data-testid="stSidebar"] {
-    background: #060d1a !important;
-    border-right: 1px solid #1e3a5f;
-}
-.sidebar-section {
-    background: #0d1b2a;
-    border: 1px solid #1e3a5f;
-    border-radius: 8px;
-    padding: 1rem;
-    margin-bottom: 1rem;
-}
-.sidebar-title {
-    font-size: 0.65rem;
+.cit-label {
+    font-size: 0.6rem;
     font-weight: 700;
-    color: #4a6fa5;
-    text-transform: uppercase;
     letter-spacing: 0.1em;
-    margin-bottom: 0.7rem;
+    text-transform: uppercase;
+    color: #c9a84c;
+    margin-right: 0.2rem;
 }
-.sidebar-item {
-    font-size: 0.78rem;
-    color: #8ba3c7;
-    padding: 0.3rem 0;
-    border-bottom: 1px solid #0d1b2a;
+.cit-chip {
+    background: #fdf8ee;
+    border: 1px solid #e8d9b0;
+    color: #8a7040;
+    font-size: 0.66rem;
+    font-family: 'Courier New', monospace;
+    padding: 0.2rem 0.55rem;
+    border-radius: 4px;
+    font-weight: 500;
 }
-.sidebar-item span { color: #60a5fa; float: right; font-weight: 500; }
+
+/* ── BUTTONS ── */
+.stButton > button {
+    background: #ffffff !important;
+    border: 1px solid #e0d8c8 !important;
+    color: #555 !important;
+    border-radius: 8px !important;
+    font-size: 0.78rem !important;
+    font-family: 'Inter', sans-serif !important;
+    font-weight: 400 !important;
+    text-align: left !important;
+    padding: 0.65rem 1rem !important;
+    line-height: 1.4 !important;
+    transition: all 0.18s ease !important;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04) !important;
+}
+.stButton > button:hover {
+    background: #0f0f0f !important;
+    border-color: #0f0f0f !important;
+    color: #f5e6c8 !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15) !important;
+}
+
+/* ── RADIO ── */
+.stRadio > div { gap: 0.4rem !important; }
+.stRadio label {
+    font-size: 0.8rem !important;
+    color: #888 !important;
+    font-family: 'Inter', sans-serif !important;
+}
+
+/* ── CHAT INPUT ── */
+.stChatInput {
+    border-top: 1px solid #ede9e0 !important;
+    background: #fafaf8 !important;
+    padding: 1rem 0 !important;
+}
+.stChatInput textarea {
+    background: #ffffff !important;
+    border: 1px solid #e0d8c8 !important;
+    border-radius: 10px !important;
+    font-family: 'Inter', sans-serif !important;
+    font-size: 0.88rem !important;
+    color: #0f0f0f !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04) !important;
+}
+
+/* ── SPINNER ── */
+.stSpinner > div { border-top-color: #c9a84c !important; }
 </style>
 """, unsafe_allow_html=True)
 
-# ── Init ─────────────────────────────────────────────────────────────────────
+# ── Init ──────────────────────────────────────────────────────────────────────
 config = Config()
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
 if "language" not in st.session_state:
     st.session_state.language = "en"
+if "pending_question" not in st.session_state:
+    st.session_state.pending_question = None
 
 try:
     collection_size = get_collection_size(config)
 except:
-    collection_size = 481
+    collection_size = 22655
 
 # ── Sidebar ───────────────────────────────────────────────────────────────────
 with st.sidebar:
-    st.markdown("### 🏦 RAG Analyst")
-    st.markdown("---")
+    st.markdown("### 🏦 RegDoc Analyst")
+    st.caption("ECB · BaFin · Regulatory Intelligence")
+    st.divider()
 
-    # Language toggle
     lang = st.radio(
         "Response language",
-        ["🇬🇧 English", "🇩🇪 Deutsch"],
+        ["🇬🇧  English", "🇩🇪  Deutsch"],
         index=0 if st.session_state.language == "en" else 1,
-        key="lang_radio"
     )
     st.session_state.language = "en" if "English" in lang else "de"
 
-    st.markdown("---")
+    st.divider()
 
-    st.markdown('<div class="sidebar-title">System</div>', unsafe_allow_html=True)
+    st.markdown("**⚙️ SYSTEM**")
     st.markdown(f"""
-    <div class="sidebar-section">
-       <div class="sidebar-item">Embedding<span>multilingual-e5</span></div>
-        <div class="sidebar-item">LLM<span>{config.ollama_model}</span></div>
-        <div class="sidebar-item">Vector DB<span>ChromaDB</span></div>
-        <div class="sidebar-item">Docs indexed<span>{collection_size}</span></div>
-        <div class="sidebar-item">Chunk size<span>{config.chunk_size} tok</span></div>
-        <div class="sidebar-item">Top-K<span>{config.top_k}</span></div>
-    </div>
-    """, unsafe_allow_html=True)
+| | |
+|:--|--:|
+| Embedding | `multilingual-e5` |
+| LLM | `{config.ollama_model}` |
+| Vector DB | `ChromaDB` |
+| Chunks | `{collection_size:,}` |
+| Chunk size | `256 · 128 overlap` |
+| Top-K | `{config.top_k}` |
+""")
+    
 
-    st.markdown('<div class="sidebar-title">Data Sources</div>', unsafe_allow_html=True)
+    st.divider()
+
+    st.markdown("**DATA SOURCES**")
+    sources = [
+        ("ECB Annual Report 2024", "✓"),
+        ("ECB Annual Report 2023", "✓"),
+        ("ECB Annual Accounts 2024", "✓"),
+        ("ECB FSR Nov 2025", "✓"),
+        ("ECB FSR May 2025", "✓"),
+        ("ECB FSR Nov 2024", "✓"),
+        ("BaFin AR 2024 EN+DE", "✓"),
+        ("BaFin AR 2023 EN+DE", "✓"),
+        ("BaFin AR 2025", "soon"),
+    ]
+    for name, status in sources:
+        c1, c2 = st.columns([4, 1])
+        with c1:
+            st.caption(name)
+        with c2:
+            st.caption(status)
+
+    st.divider()
     st.markdown("""
-    # FIND the sidebar-section for Data Sources and replace with:
-    <div class="sidebar-section">
-        <div class="sidebar-item">ECB Annual Report 2024<span>✅</span></div>
-        <div class="sidebar-item">ECB Annual Report 2023<span>✅</span></div>
-        <div class="sidebar-item">ECB Annual Accounts 2024<span>✅</span></div>
-        <div class="sidebar-item">ECB FSR Nov 2025<span>✅</span></div>
-        <div class="sidebar-item">ECB FSR May 2025<span>✅</span></div>
-        <div class="sidebar-item">ECB FSR Nov 2024<span>✅</span></div>
-        <div class="sidebar-item">BaFin Annual Report 2024 EN+DE<span>✅</span></div>
-        <div class="sidebar-item">BaFin Annual Report 2023 EN+DE<span>✅</span></div>
-        <div class="sidebar-item">BaFin Annual Report 2025<span>🔜 Jun 2026</span></div>
-    </div>
-    """, unsafe_allow_html=True)
+**👩‍💻 Swarnika Boddula**  
+ML Engineer · German Finance RAG  
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-0077B5?style=flat&logo=linkedin)](https://www.linkedin.com/in/swarnika-boddula-1b5166209/)
+[![GitHub](https://img.shields.io/badge/GitHub-Repo-181717?style=flat&logo=github)](https://github.com/swarnikabod/German-finance-rag)
+""")
 
-    if st.button("🗑 Clear conversation", use_container_width=True):
+    st.divider()
+
+    if st.button("↺ Clear conversation", use_container_width=True):
         st.session_state.messages = []
+        st.session_state.pending_question = None
         st.rerun()
-
-    st.markdown("---")
-    st.markdown('<p style="font-size:0.65rem;color:#2a4a7f;text-align:center;">Built with LangChain · ChromaDB · Mistral · Jina-DE</p>', unsafe_allow_html=True)
 
 # ── Hero ──────────────────────────────────────────────────────────────────────
 st.markdown("""
 <div class="hero">
-    <div class="hero-badge">🔬 Regulatory Intelligence · ECB · BaFin</div>
-    <h1>German Financial Document RAG</h1>
-    <p>Query ECB and BaFin regulatory documents with source citations. Built for financial analysts, risk teams, and compliance professionals.</p>
+    <div class="hero-left">
+        <div class="hero-badge">⚡ Regulatory Intelligence · ECB · BaFin</div>
+        <h1>German Financial<br>Document RAG</h1>
+        <p class="hero-desc">Ask questions about ECB monetary policy and BaFin regulatory guidance in English or German — get precise answers with page-level citations from official regulatory documents.</p>
+    </div>
+    <div class="hero-right">
+        <div class="hero-num">9</div>
+        <div class="hero-num-label">source<br>documents<br>1,126 pages</div>
+    </div>
 </div>
 """, unsafe_allow_html=True)
 
-# ── Stats row ─────────────────────────────────────────────────────────────────
+# ── Stats ─────────────────────────────────────────────────────────────────────
 st.markdown(f"""
 <div class="stats-row">
     <div class="stat-card">
-        <div class="stat-value">{collection_size}</div>
-        <div class="stat-label">Pages Indexed</div>
+        <div class="stat-num">1,126</div>
+        <div class="stat-lbl">Pages indexed</div>
     </div>
     <div class="stat-card">
-        <div class="stat-value">22,655</div>
-        <div class="stat-label">Chunks</div>
+        <div class="stat-num">22,655</div>
+        <div class="stat-lbl">Vector chunks</div>
     </div>
     <div class="stat-card">
-        <div class="stat-value">9</div>
-        <div class="stat-label">Source Documents</div>
+        <div class="stat-num">+26%</div>
+        <div class="stat-lbl">vs MiniLM baseline</div>
     </div>
     <div class="stat-card">
-        <div class="stat-value">100%</div>
-        <div class="stat-label">Free · Local LLM</div>
+        <div class="stat-num">Free</div>
+        <div class="stat-lbl">Zero API cost · Local LLM</div>
     </div>
 </div>
 """, unsafe_allow_html=True)
 
-# ── Quick questions ───────────────────────────────────────────────────────────
-if not st.session_state.messages:
-    questions_en = [
-        "What was the ECB deposit facility rate in December 2024?",
-        "What are the main financial stability risks in ECB 2023?",
-        "How did ECB handle inflation above 2% target in 2024?",
-        "What is ECB's monetary policy stance on APP and PEPP?",
-    ]
-    questions_de = [
-        "Was war der EZB-Einlagensatz im Dezember 2024?",
-        "Was sind die Hauptrisiken für die Finanzstabilität laut EZB 2023?",
-        "Wie hat die EZB auf Inflation über 2% im Jahr 2024 reagiert?",
-        "Was ist die Haltung der EZB zu APP und PEPP?",
-    ]
-    questions = questions_en if st.session_state.language == "en" else questions_de
+# ── Questions ─────────────────────────────────────────────────────────────────
+EN_QUESTIONS = [
+    "What was the ECB deposit facility rate in December 2024?",
+    "What are the main financial stability risks in ECB FSR Nov 2025?",
+    "What does BaFin say about AML compliance requirements?",
+    "What is ECB's monetary policy stance on APP and PEPP?",
+]
+DE_QUESTIONS = [
+    "Was war der EZB-Einlagensatz im Dezember 2024?",
+    "Was sind die wichtigsten Finanzstabilitätsrisiken laut EZB FSR Nov 2025?",
+    "Was sagt BaFin zu den AML-Compliance-Anforderungen?",
+    "Wie ist die geldpolitische Haltung der EZB zu APP und PEPP?",
+]
+questions = EN_QUESTIONS if st.session_state.language == "en" else DE_QUESTIONS
 
-    st.markdown('<div class="section-label">💡 Try these questions</div>', unsafe_allow_html=True)
-    cols = st.columns(2)
-    for i, q in enumerate(questions):
-        with cols[i % 2]:
-            if st.button(q, key=f"quick_{i}", use_container_width=True):
-                st.session_state.messages.append({"role": "user", "content": q})
-                st.rerun()
 
-# ── Chat history ──────────────────────────────────────────────────────────────
-for msg in st.session_state.messages:
-    if msg["role"] == "user":
-        st.markdown(f"""
-        <div class="msg-user">
-            <div class="msg-label user">▶ Analyst Query</div>
-            {msg["content"]}
-        </div>
-        """, unsafe_allow_html=True)
-    else:
-        answer = msg["content"]["answer"]
-        docs = msg["content"].get("documents", [])
-
-        source_chips = ""
-        seen = set()
-        for doc in docs:
-            src = doc.metadata.get("source", "unknown")
-            pg = doc.metadata.get("page", "?")
-            key = f"{src}·p{pg}"
-            if key not in seen:
-                seen.add(key)
-                short = src.replace("ecb_", "").replace("_", " ").replace(".pdf", "")
-                source_chips += f'<span class="source-chip">📄 {short} · p{pg}</span>'
-
-        st.markdown(f"""
-        <div class="msg-bot">
-            <div class="msg-label bot">◉ RAG Response · Mistral + Jina-DE</div>
-            {answer}
-            <div style="margin-top:1rem;padding-top:0.8rem;border-top:1px solid #1e3a5f;">
-                <span style="font-size:0.65rem;color:#4a6fa5;text-transform:uppercase;letter-spacing:0.08em;">Sources · </span>
-                {source_chips}
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-
-# ── Input + response ──────────────────────────────────────────────────────────
-lang_hint = "Ask about ECB/BaFin documents in English or German..." if st.session_state.language == "en" else "Stellen Sie eine Frage zu EZB/BaFin-Dokumenten auf Englisch oder Deutsch..."
-
-user_input = st.chat_input(lang_hint)
-
-if user_input:
-    st.session_state.messages.append({"role": "user", "content": user_input})
-
+def process_question(question: str):
     lang_instruction = (
-        "Respond in English." if st.session_state.language == "en"
-        else "Antworte auf Deutsch."
+        "Respond in English. Be direct and cite sources."
+        if st.session_state.language == "en"
+        else "Antworte auf Deutsch. Sei präzise und zitiere Quellen."
     )
-    augmented_query = f"{user_input}\n\n[{lang_instruction}]"
-
-    with st.spinner("🔍 Searching 22,655 document chunks..."):
+    augmented = f"{question}\n\n[{lang_instruction}]"
+    st.session_state.messages.append({"role": "user", "content": question})
+    with st.spinner("Searching 22,655 document chunks..."):
         try:
-            result = chain_with_sources(augmented_query, config)
+            result = chain_with_sources(augmented, config)
             st.session_state.messages.append({
                 "role": "assistant",
                 "content": result
@@ -362,6 +482,77 @@ if user_input:
         except Exception as e:
             st.session_state.messages.append({
                 "role": "assistant",
-                "content": {"answer": f"❌ Error: {str(e)}", "documents": []}
+                "content": {"answer": f"Error: {str(e)}", "documents": []}
             })
+
+
+# ── Quick questions (only when chat is empty) ─────────────────────────────────
+if not st.session_state.messages and st.session_state.pending_question is None:
+    st.markdown('<div class="qs-header">💡 Try these questions</div>', unsafe_allow_html=True)
+    col1, col2 = st.columns(2)
+    for i, q in enumerate(questions):
+        with (col1 if i % 2 == 0 else col2):
+            if st.button(q, key=f"qq_{i}", use_container_width=True):
+                st.session_state.pending_question = q
+                st.rerun()
+
+# ── Chat history ──────────────────────────────────────────────────────────────
+for msg in st.session_state.messages:
+    if msg["role"] == "user":
+        st.markdown(f"""
+        <div class="msg-user-wrap">
+            <div class="msg-user-lbl">Your question</div>
+            <div class="msg-user">{msg["content"]}</div>
+        </div>
+        """, unsafe_allow_html=True)
+    else:
+        answer = msg["content"].get("answer", "")
+        docs_list = msg["content"].get("documents", [])
+        seen = set()
+        chips = ""
+        for d in docs_list:
+            src = d.metadata.get("source", "?")
+            pg = d.metadata.get("page", "?")
+            key = f"{src}·{pg}"
+            if key not in seen:
+                seen.add(key)
+                short = (src.replace("ecb_", "ECB ")
+                           .replace("bafin_", "BaFin ")
+                           .replace("annual_report_", "AR ")
+                           .replace("annual_accounts_", "Accounts ")
+                           .replace("fsr_", "FSR ")
+                           .replace(".pdf", "")
+                           .replace("_", " ")
+                           .strip())
+                chips += f'<span class="cit-chip">{short} · p{pg}</span>'
+
+        st.markdown(f"""
+        <div class="msg-bot-wrap">
+            <div class="msg-bot-lbl">◉ RAG Response · {config.ollama_model} + multilingual-e5</div>
+            <div class="msg-bot">
+                {answer}
+                <div class="citations">
+                    <span class="cit-label">Sources</span>
+                    {chips if chips else '<span style="color:#ccc;font-size:0.7rem;">No sources retrieved</span>'}
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+# ── Process pending (quick button click) ──────────────────────────────────────
+if st.session_state.pending_question:
+    q = st.session_state.pending_question
+    st.session_state.pending_question = None
+    process_question(q)
+    st.rerun()
+
+# ── Chat input ────────────────────────────────────────────────────────────────
+hint = (
+    "Ask about ECB/BaFin documents in English or German..."
+    if st.session_state.language == "en"
+    else "Stellen Sie eine Frage zu EZB/BaFin-Dokumenten auf Englisch oder Deutsch..."
+)
+user_input = st.chat_input(hint)
+if user_input:
+    process_question(user_input)
     st.rerun()
